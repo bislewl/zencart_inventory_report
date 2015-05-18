@@ -47,18 +47,35 @@ $get_cat = zen_db_prepare_input($_GET['cat']);
 $get_dir = zen_db_prepare_input($_GET['dir']);
 $get_sort = zen_db_prepare_input($_GET['sort']);
 $get_page = zen_db_prepare_input($_GET['page']);
+$get_mfg = zen_db_prepare_input($_GET['mfg']);
+$status = zen_db_prepare_input($_GET['status']);
 $csv = zen_db_prepare_input($_GET['csv']);
 
 
 $cat = $get_cat;
 $dir = $get_dir;
+$mfg = $get_mfg;
 $sort = $get_sort;
 
 $cat = $cat == '0' ? '' : $cat;
 
+$where_array = array();
 if ($cat != '') {
-    $db_category_where = " WHERE master_categories_id = '$cat' ";
+    $where_array[] = " master_categories_id = '".$cat."' ";
 }
+if ($status != ''){
+    $where_array[] = " products_status = '".$status."' ";
+}
+if ($mfg != ''){
+    $where_array[] = " manufacturers_id = '".$mfg."' ";
+}
+if(count($where_array) > 0){
+    $db_category_where = " WHERE ".explode(" AND ", $where_array);
+}
+else{
+    $db_category_where = '';
+}
+
 
 $dir = $dir == '' ? 'ASC' : $dir;
 $op_dir = $dir == 'ASC' ? 'DESC' : 'ASC';
@@ -88,16 +105,20 @@ switch ($sort) {
     case('p.products_quantity_order_min'):
         $dir_prdocts_min = $op_dir;
         break;
+    case('p.products_model'):
+        $dir_model = $op_dir;
+        break;
 }
 
 $lang_id = $_SESSION['languages_id'] != '' ? intval($_SESSION['languages_id']) : 1;
-$products_query_raw = "select p.products_id, products_quantity, pd.products_name, p.products_price, (products_quantity * p.products_price) as total, categories_name, p.products_quantity_order_min, m.manufacturers_name from " . TABLE_PRODUCTS . " p left join " . TABLE_PRODUCTS_DESCRIPTION . " pd using(products_id) LEFT JOIN " . TABLE_CATEGORIES_DESCRIPTION . " cd ON(cd.categories_id = p.master_categories_id AND cd.language_id = '" . $lang_id . "') left join " . TABLE_MANUFACTURERS . " m using(manufacturers_id) " . $db_category_where . " group by p.products_id order by " . $sort . " " . $dir;
+$products_query_raw = "select p.products_id, products_quantity, pd.products_name, p.products_model, p.products_price, (products_quantity * p.products_price) as total, categories_name, p.products_quantity_order_min, m.manufacturers_name from " . TABLE_PRODUCTS . " p left join " . TABLE_PRODUCTS_DESCRIPTION . " pd using(products_id) LEFT JOIN " . TABLE_CATEGORIES_DESCRIPTION . " cd ON(cd.categories_id = p.master_categories_id AND cd.language_id = '" . $lang_id . "') left join " . TABLE_MANUFACTURERS . " m using(manufacturers_id) " . $db_category_where . " group by p.products_id order by " . $sort . " " . $dir;
 if ($csv == '1') {
     $current_inventory = $db->Execute($products_query_raw);
     while (!$current_inventory->EOF) {
         $products[] = array(
             'products_id' => $current_inventory->fields['products_id'],
             'products_name' => $current_inventory->fields['products_name'],
+            'products_model' => $current_inventory->fields['products_model'],
             'categories_name' => $current_inventory->fields['categories_name'],
             'manufacturers_name' => $current_inventory->fields['manufacturers_name'],
             'products_quantity' => $current_inventory->fields['products_quantity'],
@@ -107,7 +128,7 @@ if ($csv == '1') {
         );
         $current_inventory->MoveNext();
     }
-    $filename = 'invnetory_report_' . date('Ymd_His') . '.csv';
+    $filename = 'inventory_report_' . date('Ymd_His') . '.csv';
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename=' . $filename);
     $out = fopen('php://output', 'w');
@@ -165,7 +186,7 @@ if ($csv == '1') {
                         <tr>
                             <td><a href="./stats_inventory_report.php?page=all&sort=<?php echo $sort; ?>&dir=<?php echo $dir; ?>&cat=<?php echo $cat; ?>">Show All</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="./stats_inventory_report.php?sort=<?php echo $sort; ?>&dir=<?php echo $dir; ?>&cat=<?php echo $cat; ?>">Paginate</a></td>
                             <td align="right">
-                                <form method="get" action="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$replace_dir.'&sort=replace_sort', 'SSL'); ?>&sort=<?php echo $sort; ?>&dir=<?php echo $dir; ?>&cat=<?php echo $cat; ?>"><?php echo zen_draw_pull_down_menu('cat', zen_get_category_tree(), $cat, 'onChange="this.form.submit();"'); ?></form>
+                                <form method="get" action="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&dir='.$replace_dir.'&sort=replace_sort', 'SSL'); ?>"><?php echo zen_draw_pull_down_menu('cat', zen_get_category_tree(), $cat, 'onChange="this.form.submit();"'); ?></form>
                                 <br/>
                                 <?php
                                 echo '<a href="'.zen_href_link(FILENAME_STATS_INVENTORY_REPORT, zen_get_all_get_params('page').'&csv=1', 'SSL').'">'.INVENTORY_REPORT_TEXT_CSV.'</a>';
@@ -177,14 +198,15 @@ if ($csv == '1') {
                                     <tr>
                                         <td valign="top"><table border="0" width="100%" cellspacing="0" cellpadding="2">
                                                 <tr class="dataTableHeadingRow">
-                                                    <td class="dataTableHeadingContent" align="center"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_id.'&sort=p.products_id', 'SSL'); ?>&sort=p.products_id&dir=<?php echo $dir_id; ?>&cat=<?php echo $cat; ?>"><b><?php echo TABLE_HEADING_NUMBER; ?></b></a></td>
-                                                    <td class="dataTableHeadingContent"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_name.'&sort=products_name', 'SSL'); ?>&sort=products_name&dir=<?php echo $dir_name; ?>&cat=<?php echo $cat; ?>"><b><?php echo TABLE_HEADING_PRODUCTS; ?></b></a></td>
-                                                    <td class="dataTableHeadingContent" align="center"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_name.'&sort=cd.categories_name', 'SSL'); ?>&sort=cd.categories_name&dir=<?php echo $dir_name; ?>&cat=<?php echo $cat; ?>"><b>Master Category</b></a></td>
-                                                    <td class="dataTableHeadingContent" align="center"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_mfg_name.'&sort=m.manufacturers_name', 'SSL'); ?>&sort=m.manufacturers_name&dir=<?php echo $dir_id; ?>&cat=<?php echo $cat; ?>"><b><?php echo TABLE_HEADING_MANUFACTURER; ?></b></a></td>                
-                                                    <td class="dataTableHeadingContent" align="center"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_quantity.'&sort=products_quantity', 'SSL'); ?>&sort=products_quantity&dir=<?php echo $dir_quantity; ?>&cat=<?php echo $cat; ?>"><b><?php echo TABLE_HEADING_QUANTITY; ?></b></a></td>
-                                                    <td class="dataTableHeadingContent" align="center"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_prdocts_min.'&sort=p.products_quantity_order_min', 'SSL'); ?>&sort=p.products_quantity_order_min&dir=<?php echo $dir_id; ?>&cat=<?php echo $cat; ?>"><b><?php echo TABLE_HEADING_MINIMUM_QUANTITY; ?></b></a></td>
-                                                    <td class="dataTableHeadingContent" align="right"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_price.'&sort=products_price', 'SSL'); ?>&sort=products_price&dir=<?php echo $dir_price; ?>&cat=<?php echo $cat; ?>"><b><?php echo TABLE_HEADING_PRICE; ?></b></a></td>
-                                                    <td class="dataTableHeadingContent" align="right"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_total.'&sort=total', 'SSL'); ?>&sort=total&dir=<?php echo $dir_total; ?>&cat=<?php echo $cat; ?>"><b><?php echo TABLE_HEADING_TOTAL; ?></b></a></td>
+                                                    <td class="dataTableHeadingContent" align="center"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_id.'&sort=p.products_id', 'SSL'); ?>"><b><?php echo TABLE_HEADING_NUMBER; ?></b></a></td>
+                                                    <td class="dataTableHeadingContent" align="center"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_model.'&sort=p.products_model', 'SSL'); ?>"><b><?php echo TABLE_HEADING_MODEL; ?></b></a></td>
+                                                    <td class="dataTableHeadingContent"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_name.'&sort=products_name', 'SSL'); ?>"><b><?php echo TABLE_HEADING_PRODUCTS; ?></b></a></td>
+                                                    <td class="dataTableHeadingContent" align="center"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_name.'&sort=cd.categories_name', 'SSL'); ?>"><b>Master Category</b></a></td>
+                                                    <td class="dataTableHeadingContent" align="center"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_mfg_name.'&sort=m.manufacturers_name', 'SSL'); ?>"><b><?php echo TABLE_HEADING_MANUFACTURER; ?></b></a></td>                
+                                                    <td class="dataTableHeadingContent" align="center"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_quantity.'&sort=products_quantity', 'SSL'); ?>"><b><?php echo TABLE_HEADING_QUANTITY; ?></b></a></td>
+                                                    <td class="dataTableHeadingContent" align="center"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_prdocts_min.'&sort=p.products_quantity_order_min', 'SSL');  ?>"><b><?php echo TABLE_HEADING_MINIMUM_QUANTITY; ?></b></a></td>
+                                                    <td class="dataTableHeadingContent" align="right"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_price.'&sort=products_price', 'SSL'); ?>"><b><?php echo TABLE_HEADING_PRICE; ?></b></a></td>
+                                                    <td class="dataTableHeadingContent" align="right"><a href="<?php echo zen_href_link(FILENAME_STATS_INVENTORY_REPORT, 'page='.$get_page.'&cat='.$cat.'&dir='.$dir_total.'&sort=total', 'SSL');  ?>"><b><?php echo TABLE_HEADING_TOTAL; ?></b></a></td>
                                                 </tr>
                                                 <?php
                                                 if (isset($get_page) && ($get_page > 1))
@@ -212,6 +234,7 @@ if ($csv == '1') {
                                                         ?>
                                                         <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="document.location.href = '<?php echo zen_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&pID=' . $products->fields['products_id']); ?>'">
                                                             <td class="dataTableContent" align="center"><?php echo $products->fields['products_id']; ?>&nbsp;</td>
+                                                            <td class="dataTableContent" align="center"><?php echo $products->fields['products_model']; ?>&nbsp;</td>
                                                             <td class="dataTableContent"><?php echo '<a href="' . zen_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&pID=' . $products->fields['products_id']) . '">' . $products->fields['products_name'] . '</a> '; ?></td>
                                                             <td class="dataTableContent" align="center"><?php echo $products->fields['categories_name']; ?>&nbsp;</td>
                                                             <td class="dataTableContent" align="center"><?php echo $products->fields['manufacturers_name']; ?>&nbsp;</td>
@@ -226,7 +249,7 @@ if ($csv == '1') {
                                                 }
                                                 ?>
                                                 <tr class="dataTableHeadingRow">
-                                                    <td colspan="7">&nbsp;</td>
+                                                    <td colspan="8">&nbsp;</td>
                                                     <td class="dataTableHeadingContent" align="right"><?php echo $currencies->format($total); ?></td>            
                                                 </tr> 
                                             </table></td>

@@ -10,6 +10,7 @@
 */
 define('HEADING_TITLE', 'Inventory Report');
 define('TABLE_HEADING_NUMBER', 'ID#');
+define('TABLE_HEADING_MODEL', 'Model');
 define('TABLE_HEADING_PRODUCTS', 'Products');
 define('TABLE_HEADING_QUANTITY', 'Qty');
 define('TABLE_HEADING_PRICE', 'Price');
