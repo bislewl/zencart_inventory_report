@@ -117,8 +117,8 @@ if ($csv == '1') {
     while (!$current_inventory->EOF) {
         $products[] = array(
             'products_id' => $current_inventory->fields['products_id'],
-            'products_name' => $current_inventory->fields['products_name'],
             'products_model' => $current_inventory->fields['products_model'],
+            'products_name' => $current_inventory->fields['products_name'],
             'categories_name' => $current_inventory->fields['categories_name'],
             'manufacturers_name' => $current_inventory->fields['manufacturers_name'],
             'products_quantity' => $current_inventory->fields['products_quantity'],
