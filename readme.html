@@ -1,45 +1,17 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title></title>
+<html><head>
+        <title>ZC Inventory Report - Instructions</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" type="text/css" href="docs/css/stylesheet.css">
-        <script src="docs/js/jquery-1.7.1.min.js"></script>
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
         <script src="docs/js/jquery.hashchange.js" type="text/javascript"></script>
         <script src="docs/js/jquery.easytabs.js" type="text/javascript"></script>
-        <script type="text/javascript" src="docs/json_files/json_docs.js"></script>
         <script type="text/javascript">
             $(document).ready(function () {
                 $('#tab-container').easytabs();
-                     document.title = data.moduleName + ' - Instructions';
-                        $("#moduleName").text(data.moduleName);
-                        $("#version").text('Version: ' + data.version);
-                        $("#about").text(data.about);
-                        $("#featuresHeader").text(data.featuresHeading);
-                        $("#installHeader").text(data.featuresHeading);
-                        $("#featuresFooter").text(data.featuresFooter);
-                        $.each(data.features, function (i, feature) {
-                            $('#featuresList').append('<li>' + feature + '</li>');
-                        });
-                        $.each(data.installationSteps, function (i, istep) {
-                            $('#installStepsList').append('<li>' + istep + '</li>');
-                        });
-                        $.each(data.tips, function (i, tip) {
-                            $('#tipList').append('<li>' + tip + '</li>');
-                        });
-                        $.each(data.uninstallSteps, function (i, ustep) {
-                            $('#uninstallStepsList').append('<li>' + ustep + '</li>');
-                        });
-                        $.each(data.credits, function (i, credit) {
-                            $('#creditsList').append('<li>' + credit + '</li>');
-                        });
-                        $.each(data.releases, function (i, release) {
-                            $('#versionList').append('<li>' + release.date + ' ' + release.version + ' ' + release.user + ' - ' + release.description + '</li>');
-                        });
-                        $('#donate input[name="item_name"]').val('Contribution to the ZenCart Community for '+data.moduleName);
+                var moduleName = $('#moduleName').text();
+                $('#donate input[name="item_name"]').val('Contribution to the ZenCart Community for ' + moduleName);
             });
-
         </script>
     </head>
     <body>
@@ -47,50 +19,71 @@
             <div id="top-info">
                 <div id="header">
                     <div id="disclaimer">By downloading this software you agree to the license below</div>
-                    <div id="logo"><a href="https://zenzart.codes/"><img src="docs/images/logo.png" alt="ZenCart.codes"></a><br />Owned &amp; Operated by PRO-Webs.net</div>
-                    <div id="moduleName"></div>
+                    <div id="logo"><a href="https://zenzart.codes/"><img src="docs/images/logo.png" alt="ZenCart.codes"></a><br>Owned &amp; Operated by PRO-Webs.net</div>
+                    <div id="moduleName">ZC Inventory Report</div>
                 </div>
-                <br clear="both"/>
-                
-                <div id="donate">Donate to the Zen Cart Project<br /><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
-                    <input type="hidden" name="cmd" value="_xclick">
-                    <input type="hidden" name="business" value="paypal@zen-cart.com">
-                    <input type="hidden" name="no_note" value="1">
-                    <input type="hidden" name="item_name" value="Contribution to the ZenCart Community for Email Downloads Module">
-                    <input type="hidden" name="currency_code" value="USD">
-                    <input type="hidden" name="tax" value="0">
-                    <input type="hidden" name="lc" value="US">
-                    <input type="image" src="https://www.paypal.com/en_US/i/btn/x-click-but04.gif" name="submit" alt="Make a donation with PayPal - it's fast, free and secure!">
-                </form></div>
+                <br clear="both">
+
+                <div id="donate">Donate to the Zen Cart Project<br><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+                        <input type="hidden" name="cmd" value="_xclick">
+                        <input type="hidden" name="business" value="paypal@zen-cart.com">
+                        <input type="hidden" name="no_note" value="1">
+                        <input type="hidden" name="item_name" value="Contribution to the ZenCart Community for ZC Inventory Report">
+                        <input type="hidden" name="currency_code" value="USD">
+                        <input type="hidden" name="tax" value="0">
+                        <input type="hidden" name="lc" value="US">
+                        <input type="image" src="https://www.paypal.com/en_US/i/btn/x-click-but04.gif" name="submit" alt="Make a donation with PayPal - it's fast, free and secure!">
+                    </form></div>
             </div>
             <br clear="both"/>
             <div  id="tab-container" class="tab-container">
                 <ul class="etabs">
-                    <li class='tab'><a href="#tabs-about">About</a></li>
-                    <li class='tab'><a href="#tabs-install">Installation Instructions</a></li>
-                    <li class='tab'><a href="#tabs-tips">Tips/Tricks</a></li>
-                    <li class='tab'><a href="#tabs-uninstall">Uninstall Instructions</a></li>
-                    <li class='tab'><a href="#tabs-credits">Credits</a></li>
-                    <li class='tab'><a href="#tabs-license">License</a></li>
+                    <li class="tab active"><a href="#tabs-about">About</a></li>
+                    <li class="tab"><a href="#tabs-install">Installation Instructions</a></li>
+                    <li class="tab"><a href="#tabs-tips">Tips/Tricks</a></li>
+                    <li class="tab"><a href="#tabs-uninstall">Uninstall Instructions</a></li>
+                    <li class="tab"><a href="#tabs-credits">Credits</a></li>
+                    <li class="tab"><a href="#tabs-license">License</a></li>
                 </ul>
                 <div id="tabs-about">
-                    <span id="version"></span>
-                    <br/>
-                    <br/>
-                    <span id="about"></span>
-                    <h2 id="featuresHeader"></h2>
+                    <span id="version">Version: 1.8.0</span>
+                    <br>
+                    <br>
+                    <span id="about">This module is an simple installation for Zen Cart 1.5.4 and Tested on PHP 5.2.17, 5.3.13 and 5.4.26. It may very well work on other Zen cart versions too.</span>
+                    <h2 id="featuresHeader">ZenCart Invnetory Report Features</h2>
                     <ul id="featuresList">
+                        <li>Ability to get a report for the items in stock</li>
+                        <li>Display's Product ID, Product Name, Categories Name, Manufacturers Name, Products Quantity, Minimum Order per Product, Products Price, Total Value of Invnetory</li>
+                        <li>Ability to refine the search by category</li>
+                        <li>Sort the report by any of the coulmns</li>
+                        <li>Paginate or See all of the report</li>
+                        <li>Download a CSV of the Report</li>
+                        <li>No core edits</li>
+                        <li>No database edits</li>
                     </ul>
-                    <br/>
-                    <br/>
+                    <br>
+                    <br>
                     <span id="featuresFeader"></span>
-                    <br/>
+                    <br>
                     <h2>Version History</h2>
-                    <ul id="versionList"></ul>
+                    <ul id="versionList">
+                        <li>03/14/2007 1.0.0 Damon Parker - Original Source</li>
+                        <li>05/04/2011 1.5.0 PRO-Webs - Updated for Zen Cart 1.3.8 &amp; 9</li>
+                        <li>02/26/2012 1.6.0 PRO-Webs - Zen Cart 1.5.0 installation creation</li>
+                        <li>04/20/2012 1.7.0 PRO-Webs - Bug Fixes Syntax stats_inventory_report.php</li>
+                        <li>07/10/2012 1.7.1 PRO-Webs - Upgrade check for Zen Cart 1.5.3</li>
+                        <li>05/15/2015 1.8.0 PRO-Webs - Added Manufacturers Name, Minimum Per Order and CSV dowloand</li>
+                        <li>05/16/2015 1.8.1 PRO-Webs - Added ability to see products_model, fixed bug in sort by manufacturer, improved csv filename</li>
+                    </ul>
                 </div>
                 <div id="tabs-install">
                     <span id="installationHeader"></span>
                     <ol id="installStepsList">
+                        <li>FIRST MAKE A FULLE BACKUP OF YOUR WEBSITE'S FILES AND DATABASE!</li>
+                        <li>Upload your files (merging when needed) maintaining the folder structure, changing &amp; "YOUR_ADMIN" to their respective folders from the catalog folder.</li>
+                        <li>That's all. You will find your new report in your administration interface under the reports menu called "Inventory Report".</li>
+                        <li>You will need to refresh your admin interface to load the new menu item.</li>
+                        <li>Please direct support questions here (<a href="https://pro-webs-support.com/">https://pro-webs-support.com/</a>)</li>
                     </ol>
                 </div>
                 <div id="tabs-tips">
@@ -99,10 +92,12 @@
                 </div>
                 <div id="tabs-uninstall">
                     <ol id="uninstallStepsList">
+                        <li>Simply remove the package files for a full uninstall.</li>
                     </ol>
                 </div>
                 <div id="tabs-credits">
-                    <ul id="creditsList"></ul>
+                    <ul id="creditsList"><li>Damon Parker</li>
+                    </ul>
                 </div>
                 <div id="tabs-license">
                     <p>GNU GENERAL PUBLIC LICENSE
@@ -291,7 +286,8 @@
                     <p>The author and anyone associated with this module shall be held harmless in the event that anything happens. Including but not limited to your store being broken, incorrect information supplied to you/your customer. Installation and use of this module is at your own risk.</p>
                 </div>
             </div>
-            <div id="copyright">Copyright <a href="https://zencart.codes/">ZenCart.codes</a> Owned & Operated by <a href="http://pro-webs.net/">PRO-Webs, Inc.</a> 2010-2015</div>
+            <div id="copyright">Copyright <a href="https://zencart.codes/">ZenCart.codes</a> Owned &amp; Operated by <a href="http://pro-webs.net/">PRO-Webs, Inc.</a> 2010-2015</div>
         </div>
-    </body>
-</html>
+
+
+    </body></html>
